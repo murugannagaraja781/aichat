@@ -1,165 +1,174 @@
-# WebRTC Video Calling System (MERN)
+# WebRTC Video Calling System
 
-Full-featured P2P video calling application with WebRTC, Socket.IO, React, Node.js, Express, and MongoDB.
+A full-stack MERN application for real-time video calling using WebRTC, Socket.IO, and MongoDB.
+
+## Project Structure
+
+```
+/
+├── backend/              # Express + Socket.IO server
+│   ├── server.js        # Main server file
+│   ├── models/          # MongoDB models
+│   ├── tests/           # Backend tests
+│   └── package.json     # Backend dependencies
+│
+├── frontend/            # React application
+│   ├── src/            # React components
+│   ├── public/         # Static files
+│   └── package.json    # Frontend dependencies
+│
+└── package.json        # Root scripts for development
+```
 
 ## Features
 
-- ✅ Create/Join rooms with UUID
-- ✅ P2P video + audio calling
-- ✅ Multi-user support
-- ✅ Mute/unmute audio
-- ✅ Camera on/off
-- ✅ Screen sharing
-- ✅ Real-time chat
-- ✅ Raise hand
-- ✅ Join/leave notifications
-- ✅ Auto-reconnect logic
+- ✅ Real-time video calling with WebRTC
+- ✅ Socket.IO for signaling
+- ✅ MongoDB for room persistence
+- ✅ Text chat during calls
+- ✅ Raise hand feature
+- ✅ Toggle audio/video
 - ✅ Responsive design
 
-## Tech Stack
-
-- **Frontend**: React, Socket.IO Client, WebRTC
-- **Backend**: Node.js, Express, Socket.IO
-- **Database**: MongoDB
-- **Signaling**: Socket.IO
-
-## Installation
+## Local Development
 
 ### Prerequisites
-
-- Node.js (v16+)
+- Node.js 16+
 - MongoDB (local or Atlas)
 - npm or yarn
 
-### Backend Setup
+### Setup
 
+1. **Clone repository**
 ```bash
-# Install dependencies
-npm install
+git clone <your-repo-url>
+cd webrtc-video-call
+```
 
-# Create .env file
+2. **Install dependencies**
+```bash
+npm run install:all
+```
+
+3. **Configure Backend**
+```bash
+cd backend
 cp .env.example .env
-
-# Edit .env with your MongoDB URI
-# MONGODB_URI=mongodb://localhost:27017/webrtc-calls
-# PORT=7009
-# CLIENT_URL=http://localhost:3000
-
-# Start MongoDB (if local)
-mongod
-
-# Run server
-npm start
-
-# Or development mode
-npm run dev
 ```
 
-### Frontend Setup
+Edit `backend/.env`:
+```env
+PORT=7009
+MONGODB_URI=mongodb://localhost:27017/webrtc-calls
+CLIENT_URL=http://localhost:3000
+NODE_ENV=development
+```
+
+4. **Configure Frontend**
+```bash
+cd frontend
+cp .env.example .env
+```
+
+Edit `frontend/.env`:
+```env
+REACT_APP_API_URL=http://localhost:7009
+REACT_APP_SOCKET_URL=http://localhost:7009
+```
+
+5. **Run Development Servers**
+
+Terminal 1 - Backend:
+```bash
+npm run dev:backend
+```
+
+Terminal 2 - Frontend:
+```bash
+npm run dev:frontend
+```
+
+6. **Access Application**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:7009
+
+## Testing
 
 ```bash
-# Navigate to client
-cd client
+# Test backend
+npm run test:backend
 
-# Install dependencies
-npm install
-
-# Create .env file (optional)
-# REACT_APP_API_URL=http://localhost:7009
-# REACT_APP_SOCKET_URL=http://localhost:7009
-
-# Start React app
-npm start
+# Test frontend
+npm run test:frontend
 ```
-
-## Usage
-
-1. Open http://localhost:3000
-2. Enter your name
-3. Click "Create New Room" or enter a room ID to join
-4. Share the room link with others
-5. Use controls to manage audio/video/screen share
 
 ## Deployment
 
-### Backend (Railway/Render/Heroku)
+See [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) for detailed Railway deployment instructions.
 
-1. Push code to GitHub
-2. Connect repository to Railway/Render
-3. Set environment variables:
-   - `MONGODB_URI`
-   - `CLIENT_URL`
-   - `PORT`
-4. Deploy
+### Quick Deploy Summary
 
-### Frontend (Vercel/Netlify)
+1. **Backend Service**
+   - Root Directory: `backend`
+   - Environment: MONGODB_URI, NODE_ENV, CLIENT_URL
 
-```bash
-cd client
-npm run build
-
-# Deploy build folder
-# Set environment variables:
-# REACT_APP_API_URL=https://your-backend.railway.app
-# REACT_APP_SOCKET_URL=https://your-backend.railway.app
-```
-
-## Production Considerations
-
-1. **TURN Server**: Add TURN servers in `client/src/pages/Room.jsx` for NAT traversal
-2. **HTTPS**: Required for getUserMedia() in production
-3. **MongoDB Atlas**: Use cloud MongoDB for production
-4. **Environment Variables**: Set all required env vars
-5. **CORS**: Configure proper CORS origins
-6. **Rate Limiting**: Add rate limiting to API endpoints
-7. **Authentication**: Add user authentication if needed
-
-## TURN Server Setup (Optional)
-
-```javascript
-// In Room.jsx, update iceServers:
-const iceServers = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    {
-      urls: 'turn:your-turn-server.com:3478',
-      username: 'username',
-      credential: 'password'
-    }
-  ]
-};
-```
+2. **Frontend Service**
+   - Root Directory: `frontend`
+   - Environment: REACT_APP_API_URL, REACT_APP_SOCKET_URL
 
 ## API Endpoints
 
+### REST API
 - `POST /api/room/create` - Create new room
-- `GET /api/room/:id/join` - Check if room exists
+- `GET /api/room/:id/join` - Join existing room
 
-## Socket Events
-
-### Client → Server
-- `join-room` - Join a room
-- `offer` - Send WebRTC offer
-- `answer` - Send WebRTC answer
-- `ice-candidate` - Send ICE candidate
+### Socket.IO Events
+- `join-room` - Join video room
+- `offer` - WebRTC offer
+- `answer` - WebRTC answer
+- `ice-candidate` - ICE candidate exchange
 - `chat-message` - Send chat message
-- `raise-hand` - Raise hand
+- `raise-hand` - Raise hand notification
 - `toggle-audio` - Toggle audio state
 - `toggle-video` - Toggle video state
 - `leave-room` - Leave room
+- `disconnect` - User disconnected
 
-### Server → Client
-- `all-users` - List of users in room
-- `user-joined` - New user joined
-- `user-left` - User left
-- `offer` - Receive WebRTC offer
-- `answer` - Receive WebRTC answer
-- `ice-candidate` - Receive ICE candidate
-- `chat-message` - Receive chat message
-- `hand-raised` - User raised hand
-- `user-audio-toggle` - User toggled audio
-- `user-video-toggle` - User toggled video
+## Tech Stack
+
+**Backend:**
+- Node.js + Express
+- Socket.IO
+- MongoDB + Mongoose
+- CORS
+
+**Frontend:**
+- React 18
+- React Router
+- Socket.IO Client
+- WebRTC API
+
+## Browser Support
+
+- Chrome 80+
+- Firefox 75+
+- Safari 14+
+- Edge 80+
+
+**Note:** HTTPS required for getUserMedia() in production.
+
+## Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
 ## License
 
-MIT
+ISC
+
+## Support
+
+For issues and questions, please open a GitHub issue.

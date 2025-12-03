@@ -1,8 +1,0 @@
-client/
-tests/
-*.test.js
-*.md
-!README.md
-.git/
-.gitignore
-jest.config.js
